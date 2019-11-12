@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Spotify Web Playback SDK Quick Start Tutorial</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+</head>
+<body>
+  <h1>Spotify Web Playback SDK Quick Start Tutorial</h1>
+  <h2>Open your console log: <code>View > Developer > JavaScript Console</code></h2>
+  <script src="https://sdk.scdn.co/spotify-player.js"></script>
+  <script>
+  const access_token = "BQC8sq425_CQPXkJckB06kC2_-zsawvzbItlAEQBDiwx3HBHJ6AKW71UFh8vMdw5IzajUUT5GpND4dVGyuueNHSHiOch9AzqYbF6EW-IyROqbMgoE19fbOTNTr1DeNlk0dogUfo347ek3yMovZkAVrdI6GdAszipkgwsVb2GYo7DjgJTktDnSxuhJTTGtIdgjh4gHm0M8JJgXiLe02ynCfdvQXIGKolIp5PT3w_VMH-yiR6xMuJuXYjU1HjY7SV8-tjmbZGsdtrze-vTcK7j-o6QtSG7fxIvVOUehw";
+  var player;
+  var finished = false;
+  window.onSpotifyWebPlaybackSDKReady = () => {
+      player = new Spotify.Player({
+        name: 'Arduino',
+        getOAuthToken: cb => { cb(access_token); }
+      });
+
+      // Error handling
+      player.addListener('initialization_error', ({ message }) => { console.error(message); });
+      player.addListener('authentication_error', ({ message }) => { console.error(message); });
+      player.addListener('account_error', ({ message }) => { console.error(message); });
+      player.addListener('playback_error', ({ message }) => { console.error(message); });
+
+      // Playback status updates
+      player.addListener('player_state_changed', state => { console.log(state); });
+
+      // Ready
+      player.addListener('ready', ({ device_id }) => {
+        console.log('Ready with Device ID', device_id);
+      });
+
+      // Not Ready
+      player.addListener('not_ready', ({ device_id }) => {
+        console.log('Device ID has gone offline', device_id);
+      });
+
+      // Connect to the player!
+      player.connect().then(function(){
+        finished = true;
+      });
+
+    };
+    var interval = setInterval(function() {
+      if(document.readyState === 'complete') {
+          clearInterval(interval);
+          $.ajax({
+            url: 'https://api.spotify.com/v1/me/player/play',
+            type: 'PUT',
+            headers: {
+            "Authorization": "Bearer " + access_token
+            },
+            success: function(result) {
+                // Do something with the result
+            }
+          });
+      }
+    }, 100);
+  </script>
+</body>
+</html>
